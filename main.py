@@ -3,7 +3,7 @@
 
 from modules.helpers import plt_style
 
-GRID_SIZE = 64 # power of two
+GRID_SIZE = 32 # power of two
 ONE = 1.0/GRID_SIZE
 ONEHALF = ONE*0.5
 
@@ -13,11 +13,11 @@ BACK = [1,1,1,1]
 THREADS = 512
 ZONE_LEAP = 512
 
-INFLUENCE_RAD = 5
+INFLUENCE_RAD = 3
 
-LEAP = 10
+LEAP = 1
 
-MS = 10.0
+MS = 2.0
 ALPHA = 0.5
 
 
@@ -45,8 +45,12 @@ def show(plt, automata):
   y = j.astype('float')
 
   hi, hj = automata.hits.nonzero()
-  hx = hi.astype('float')
-  hy = hj.astype('float')
+  hit_mask = automata.hits[hi,hj]>1
+
+  hx = hi[hit_mask].astype('float')
+  hy = hj[hit_mask].astype('float')
+
+  # print('sum', hit_count.sum(), len(hit_count))
 
   massx = automata.massx[i, j]
   massy = automata.massy[i, j]
@@ -62,22 +66,22 @@ def show(plt, automata):
   hx *= ONE
   hy *= ONE
 
-  plt.quiver(
-      x, y,
-      massx, massy,
-      units='width', scale=GRID_SIZE*0.25,
-      headaxislength=0, headwidth=1,
-      alpha=ALPHA, color='r'
-      )
+  # plt.quiver(
+  #     x, y,
+  #     massx, massy,
+  #     units='width', scale=GRID_SIZE*0.25,
+  #     headaxislength=0, headwidth=1,
+  #     alpha=ALPHA, color='r'
+  #     )
+  # plt.plot(
+  #     hx, hy,
+  #     'bo',
+  #     markersize=2*MS, alpha=ALPHA*0.5
+  #     )
   plt.plot(
       x, y,
       'ko',
       markersize=MS, alpha=ALPHA
-      )
-  plt.plot(
-      hx, hy,
-      'bo',
-      markersize=2*MS, alpha=ALPHA*0.5
       )
 
   plt.draw()
@@ -92,7 +96,7 @@ def main():
 
   A = Automata(
       GRID_SIZE,
-      get_initial(),
+      get_initial(num=100, shift=4),
       INFLUENCE_RAD,
       THREADS,
       )

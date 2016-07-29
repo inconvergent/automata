@@ -4,6 +4,8 @@ from numpy import float32 as npfloat
 from numpy import int32 as npint
 from numpy import bool as npbool
 from numpy import zeros
+from numpy import logical_and
+from numpy.random import random
 
 # from numpy import pi
 # TWOPI = pi*2
@@ -40,6 +42,11 @@ class Automata(object):
     self.neigh = zeros((grid_size, grid_size), npint)
     self.hits = zeros((grid_size, grid_size), npint)
     self.grid[:,:] = initial
+
+  def _diminish(self):
+    ii,jj = logical_and(self.hits<2, self.grid).nonzero()
+    diminish_mask = random(size=len(ii))<0.01
+    self.grid[ii[diminish_mask], jj[diminish_mask]] = False
 
   def __cuda_init(self):
     import pycuda.autoinit
@@ -88,4 +95,14 @@ class Automata(object):
         block=(self.threads,1,1),
         grid=(blocks,1)
         )
+
+    self._diminish()
+
+    hi, hj = self.hits.nonzero()
+    hit_mask = self.hits[hi,hj]>1
+    hi = hi[hit_mask]
+    hj = hj[hit_mask]
+
+    update_mask = random(size=len(hi))<0.1
+    self.grid[hi[update_mask], hj[update_mask]] = True
 

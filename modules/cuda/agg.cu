@@ -12,13 +12,20 @@ __device__ void _increment_hit_count(
     ){
   const float one = 1.0f/(float)grid_size;
   const int k = i*grid_size+j;
-  const float x = (float)i*one+massx[k]*one;
-  const float y = (float)j*one+massy[k]*one;
 
-  const int ii = (int)round(x*grid_size);
-  const int jj = (int)round(y*grid_size);
+  int ii;
+  int jj;
+  float x;
+  float y;
 
-  atomicAdd(&hits[ii*grid_size+jj], 1);
+  for (int w=1;w<3;w++){
+    x = (float)i*one+massx[k]*one*w;
+    y = (float)j*one+massy[k]*one*w;
+    ii = (int)round(x*grid_size);
+    jj = (int)round(y*grid_size);
+    atomicAdd(&hits[ii*grid_size+jj], 1);
+  }
+
   return;
 }
 
