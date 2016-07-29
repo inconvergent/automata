@@ -38,6 +38,7 @@ class Automata(object):
     self.massx = zeros((grid_size, grid_size), npfloat)
     self.massy = zeros((grid_size, grid_size), npfloat)
     self.neigh = zeros((grid_size, grid_size), npint)
+    self.hits = zeros((grid_size, grid_size), npint)
     self.grid[:,:] = initial
 
   def __cuda_init(self):
@@ -49,21 +50,17 @@ class Automata(object):
         'mass',
         subs={'_THREADS_': self.threads}
         )
-    # self.cuda_step = load_kernel(
-    #     'modules/cuda/step.cu',
-    #     'step',
-    #     subs={
-    #       '_THREADS_': self.threads,
-    #       '_PROX_': self.zone_leap
-    #       }
-    #     )
+    self.cuda_agg = load_kernel(
+        'modules/cuda/agg.cu',
+        'agg',
+        subs={'_THREADS_': self.threads}
+        )
 
   def step(self):
     import pycuda.driver as drv
     self.itt += 1
 
     grid = self.grid
-
     blocks = self.total_grid_size//self.threads + 1
 
     self.cuda_mass(
@@ -77,3 +74,18 @@ class Automata(object):
         block=(self.threads,1,1),
         grid=(blocks,1)
         )
+
+    self.hits[:,:] = 0
+
+    self.cuda_agg(
+        npint(self.total_grid_size),
+        npint(self.grid_size),
+        drv.In(grid),
+        drv.In(self.massx[:,:]),
+        drv.In(self.massy[:,:]),
+        drv.In(self.neigh[:,:]),
+        drv.InOut(self.hits[:,:]),
+        block=(self.threads,1,1),
+        grid=(blocks,1)
+        )
+

@@ -3,7 +3,7 @@
 
 from modules.helpers import plt_style
 
-GRID_SIZE = 512
+GRID_SIZE = 64 # power of two
 ONE = 1.0/GRID_SIZE
 ONEHALF = ONE*0.5
 
@@ -17,20 +17,24 @@ INFLUENCE_RAD = 5
 
 LEAP = 10
 
-MS = 3.0
+MS = 10.0
 ALPHA = 0.5
 
 
-def get_initial(num=500, shift=50):
+def get_initial(num=10, shift=2):
   from numpy import zeros
   from numpy.random import randint
   init = zeros((GRID_SIZE, GRID_SIZE), 'bool')
-  # init[:,int(GRID_SIZE/2)] = True
 
-  xx = randint(GRID_SIZE*0.5-shift,GRID_SIZE*0.5+shift, size=(num))
-  yy = randint(GRID_SIZE*0.5-shift,GRID_SIZE*0.5+shift, size=(num))
+  mid = int(GRID_SIZE/2)
 
-  init[xx,yy] = True
+  init[mid-shift:mid+shift,mid-shift:mid+shift] = True
+  xx = randint(mid-shift,mid+shift, size=(num))
+  yy = randint(mid-shift,mid+shift, size=(num))
+  init[xx,yy] = False
+
+  # init[mid-shift:mid+shift,mid] = True
+
   return init
 
 @plt_style
@@ -40,16 +44,23 @@ def show(plt, automata):
   x = i.astype('float')
   y = j.astype('float')
 
+  hi, hj = automata.hits.nonzero()
+  hx = hi.astype('float')
+  hy = hj.astype('float')
+
   massx = automata.massx[i, j]
   massy = automata.massy[i, j]
 
   # from numpy import column_stack
   # print(column_stack((massx,massy)))
   # print(automata.neigh[i,j])
+  # print(automata.hits)
   # print()
 
   x *= ONE
   y *= ONE
+  hx *= ONE
+  hy *= ONE
 
   plt.quiver(
       x, y,
@@ -62,6 +73,11 @@ def show(plt, automata):
       x, y,
       'ko',
       markersize=MS, alpha=ALPHA
+      )
+  plt.plot(
+      hx, hy,
+      'bo',
+      markersize=2*MS, alpha=ALPHA*0.5
       )
 
   plt.draw()
@@ -90,6 +106,10 @@ def main():
         plt.pause(0.05)
     except KeyboardInterrupt:
       break
+
+  plt.ioff()
+  show(plt, A)
+  plt.show()
 
 
 

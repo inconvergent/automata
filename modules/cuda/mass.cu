@@ -51,8 +51,8 @@ __device__ void _calculate_centre_of_mass(
     mx /= (float)count;
     my /= (float)count;
 
-    mx = mx - x;
-    my = my - y;
+    mx = x-mx;
+    my = y-my;
 
     nrm = mx*mx+my*my;
     if (nrm>0.0f){
@@ -91,5 +91,4 @@ __global__ void mass(
   }
 
   _calculate_centre_of_mass(grid_size, i, j, grid, influence_rad, massx, massy, neigh);
-
 }
