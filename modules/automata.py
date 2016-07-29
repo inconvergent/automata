@@ -43,9 +43,9 @@ class Automata(object):
     self.hits = zeros((grid_size, grid_size), npint)
     self.grid[:,:] = initial
 
-  def _diminish(self):
+  def _diminish(self, prob):
     ii,jj = logical_and(self.hits<2, self.grid).nonzero()
-    diminish_mask = random(size=len(ii))<0.01
+    diminish_mask = random(size=len(ii))<prob
     self.grid[ii[diminish_mask], jj[diminish_mask]] = False
 
   def __cuda_init(self):
@@ -96,13 +96,14 @@ class Automata(object):
         grid=(blocks,1)
         )
 
-    self._diminish()
+    # self._diminish(0.1)
 
     hi, hj = self.hits.nonzero()
-    hit_mask = self.hits[hi,hj]>1
+    hit_mask = self.hits[hi,hj]>0
     hi = hi[hit_mask]
     hj = hj[hit_mask]
 
-    update_mask = random(size=len(hi))<0.1
-    self.grid[hi[update_mask], hj[update_mask]] = True
+    # update_mask = random(size=len(hi))<0.8
+    # self.grid[hi[update_mask], hj[update_mask]] = True
+    self.grid[hi, hj] = True
 

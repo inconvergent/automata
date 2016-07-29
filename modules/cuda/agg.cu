@@ -18,7 +18,7 @@ __device__ void _increment_hit_count(
   float x;
   float y;
 
-  for (int w=1;w<3;w++){
+  for (int w=1;w<2;w++){
     x = (float)i*one+massx[k]*one*w;
     y = (float)j*one+massy[k]*one*w;
     ii = (int)round(x*grid_size);

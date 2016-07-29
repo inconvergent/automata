@@ -3,7 +3,7 @@
 
 from modules.helpers import plt_style
 
-GRID_SIZE = 32 # power of two
+GRID_SIZE = 512 # power of two
 ONE = 1.0/GRID_SIZE
 ONEHALF = ONE*0.5
 
@@ -29,9 +29,9 @@ def get_initial(num=10, shift=2):
   mid = int(GRID_SIZE/2)
 
   init[mid-shift:mid+shift,mid-shift:mid+shift] = True
-  xx = randint(mid-shift,mid+shift, size=(num))
-  yy = randint(mid-shift,mid+shift, size=(num))
-  init[xx,yy] = False
+  # xx = randint(mid-shift,mid+shift, size=(num))
+  # yy = randint(mid-shift,mid+shift, size=(num))
+  # init[xx,yy] = False
 
   # init[mid-shift:mid+shift,mid] = True
 
@@ -45,7 +45,7 @@ def show(plt, automata):
   y = j.astype('float')
 
   hi, hj = automata.hits.nonzero()
-  hit_mask = automata.hits[hi,hj]>1
+  hit_mask = automata.hits[hi,hj]>0
 
   hx = hi[hit_mask].astype('float')
   hy = hj[hit_mask].astype('float')
@@ -73,11 +73,11 @@ def show(plt, automata):
   #     headaxislength=0, headwidth=1,
   #     alpha=ALPHA, color='r'
   #     )
-  # plt.plot(
-  #     hx, hy,
-  #     'bo',
-  #     markersize=2*MS, alpha=ALPHA*0.5
-  #     )
+  plt.plot(
+      hx, hy,
+      'bo',
+      markersize=2*MS, alpha=ALPHA*0.5
+      )
   plt.plot(
       x, y,
       'ko',
