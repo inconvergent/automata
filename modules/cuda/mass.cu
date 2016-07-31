@@ -25,7 +25,6 @@ __device__ void _calculate_centre_of_mass(
 
   const float rad = pow(one*(float)influence_rad, 2.0f);
 
-
   int k;
   for (int a=max(i-influence_rad,0);a<min(i+influence_rad+1,grid_size);a++){
     for (int b=max(j-influence_rad,0);b<min(j+influence_rad+1,grid_size);b++){
@@ -73,6 +72,36 @@ __device__ void _calculate_centre_of_mass(
   return;
 }
 
+__device__ void _count_connected(
+    const int grid_size,
+    const int i,
+    const int j,
+    const bool *grid,
+    int *connected
+    ){
+
+  int k = i*grid_size+j;
+  /*if (grid[k]){*/
+  /*  connected[k] = 0;*/
+  /*  return;*/
+  /*}*/
+
+  int count = 0;
+
+  for (int a=max(i-1,0);a<min(i+2,grid_size);a++){
+    for (int b=max(j-1,0);b<min(j+2,grid_size);b++){
+      k = a*grid_size+b;
+      if (grid[k]){
+        count += 1;
+      }
+    }
+  }
+  k = i*grid_size+j;
+  connected[k] = count;
+
+  return;
+}
+
 __global__ void mass(
     const int n,
     const int grid_size,
@@ -80,7 +109,8 @@ __global__ void mass(
     const int influence_rad,
     float *massx,
     float *massy,
-    int *neigh
+    int *neigh,
+    int *connected
     ){
   const int ij = blockIdx.x*THREADS + threadIdx.x;
   const int i = (int)floor(float(ij)/(float)grid_size);
@@ -91,4 +121,6 @@ __global__ void mass(
   }
 
   _calculate_centre_of_mass(grid_size, i, j, grid, influence_rad, massx, massy, neigh);
+  _count_connected(grid_size, i, j, grid, connected);
+
 }

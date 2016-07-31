@@ -41,12 +41,17 @@ class Automata(object):
     self.massy = zeros((grid_size, grid_size), npfloat)
     self.neigh = zeros((grid_size, grid_size), npint)
     self.hits = zeros((grid_size, grid_size), npint)
+    self.connected = zeros((grid_size, grid_size), npint)
     self.grid[:,:] = initial
 
   def _diminish(self, prob):
-    ii,jj = logical_and(self.hits<2, self.grid).nonzero()
+    ii,jj = logical_and(self.connected<5, self.grid).nonzero()
     diminish_mask = random(size=len(ii))<prob
     self.grid[ii[diminish_mask], jj[diminish_mask]] = False
+
+    # ii,jj = self.grid.nonzero()
+    # diminish_mask = random(size=len(ii))<0.01
+    # self.grid[ii[diminish_mask], jj[diminish_mask]] = False
 
   def __cuda_init(self):
     import pycuda.autoinit
@@ -78,6 +83,7 @@ class Automata(object):
         drv.InOut(self.massx[:,:]),
         drv.InOut(self.massy[:,:]),
         drv.Out(self.neigh[:,:]),
+        drv.Out(self.connected[:,:]),
         block=(self.threads,1,1),
         grid=(blocks,1)
         )
@@ -96,14 +102,15 @@ class Automata(object):
         grid=(blocks,1)
         )
 
-    # self._diminish(0.1)
+    self._diminish(0.2)
 
-    hi, hj = self.hits.nonzero()
+    hi, hj = logical_and(self.hits, self.connected>1).nonzero()
     hit_mask = self.hits[hi,hj]>0
     hi = hi[hit_mask]
     hj = hj[hit_mask]
 
-    # update_mask = random(size=len(hi))<0.8
-    # self.grid[hi[update_mask], hj[update_mask]] = True
-    self.grid[hi, hj] = True
+    update_mask = random(size=len(hi))<0.2
+    self.grid[hi[update_mask], hj[update_mask]] = True
+
+    # self.grid[hi, hj] = True
 

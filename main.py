@@ -15,7 +15,7 @@ ZONE_LEAP = 512
 
 INFLUENCE_RAD = 3
 
-LEAP = 1
+LEAP = 15
 
 MS = 2.0
 ALPHA = 0.5
@@ -50,6 +50,14 @@ def show(plt, automata):
   hx = hi[hit_mask].astype('float')
   hy = hj[hit_mask].astype('float')
 
+  ci, cj = (automata.connected>1).nonzero()
+
+  hx = hi[hit_mask].astype('float')
+  hy = hj[hit_mask].astype('float')
+
+  cx = ci.astype('float')
+  cy = cj.astype('float')
+
   # print('sum', hit_count.sum(), len(hit_count))
 
   massx = automata.massx[i, j]
@@ -65,6 +73,8 @@ def show(plt, automata):
   y *= ONE
   hx *= ONE
   hy *= ONE
+  cx *= ONE
+  cy *= ONE
 
   # plt.quiver(
   #     x, y,
@@ -73,11 +83,16 @@ def show(plt, automata):
   #     headaxislength=0, headwidth=1,
   #     alpha=ALPHA, color='r'
   #     )
-  plt.plot(
-      hx, hy,
-      'bo',
-      markersize=2*MS, alpha=ALPHA*0.5
-      )
+  # plt.plot(
+  #     hx, hy,
+  #     'bo',
+  #     markersize=2*MS, alpha=ALPHA*0.5
+  #     )
+  # plt.plot(
+  #     cx, cy,
+  #     'go',
+  #     markersize=2*MS, alpha=ALPHA*0.5
+  #     )
   plt.plot(
       x, y,
       'ko',
@@ -107,7 +122,7 @@ def main():
       show(plt, A)
       if not A.itt % LEAP:
         print(A.itt)
-        plt.pause(0.05)
+        plt.pause(0.00001)
     except KeyboardInterrupt:
       break
 
