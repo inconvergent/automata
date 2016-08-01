@@ -45,9 +45,14 @@ class Automata(object):
     self.grid[:,:] = initial
 
   def _diminish(self, prob):
-    ii,jj = logical_and(self.connected<5, self.grid).nonzero()
-    diminish_mask = random(size=len(ii))<prob
-    self.grid[ii[diminish_mask], jj[diminish_mask]] = False
+    # ii,jj = logical_and(self.connected>7, self.grid).nonzero()
+    # self.grid[ii, jj] = False
+
+    ii,jj = logical_and(self.neigh>15, self.grid).nonzero()
+    self.grid[ii, jj] = False
+
+    # diminish_mask = random(size=len(ii))<prob
+    # self.grid[ii[diminish_mask], jj[diminish_mask]] = False
 
     # ii,jj = self.grid.nonzero()
     # diminish_mask = random(size=len(ii))<0.01
@@ -104,10 +109,19 @@ class Automata(object):
 
     self._diminish(0.2)
 
-    hi, hj = logical_and(self.hits, self.connected>1).nonzero()
+    # hi, hj = logical_and(
+    #     self.neigh>15,
+    #     logical_and(self.hits, self.connected>1)
+    #     ).nonzero()
+
+    hi, hj = logical_and(
+        self.neigh<=15, self.connected>1
+        ).nonzero()
+
     hit_mask = self.hits[hi,hj]>0
     hi = hi[hit_mask]
     hj = hj[hit_mask]
+
 
     update_mask = random(size=len(hi))<0.2
     self.grid[hi[update_mask], hj[update_mask]] = True

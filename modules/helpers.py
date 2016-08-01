@@ -8,6 +8,8 @@ def plt_style(func):
     plt.tight_layout()
     plt.xlim([0,1])
     plt.ylim([0,1])
+    plt.axis('off')
+    plt.subplots_adjust(bottom=0.,left=0.,right=1.,top=1.)
   return f
 
 def load_kernel(fn, name, subs={}):

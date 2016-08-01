@@ -15,7 +15,7 @@ ZONE_LEAP = 512
 
 INFLUENCE_RAD = 3
 
-LEAP = 15
+LEAP = 50
 
 MS = 2.0
 ALPHA = 0.5
@@ -106,8 +106,14 @@ def show(plt, automata):
 def main():
   from modules.automata import Automata
 
+  from fn import Fn
+
+  fn = Fn(prefix='./res', postfix='.png')
+
   import matplotlib.pyplot as plt
   plt.ion()
+  plt.figure(figsize=(8,8))
+  plt.axis('off')
 
   A = Automata(
       GRID_SIZE,
@@ -123,12 +129,14 @@ def main():
       if not A.itt % LEAP:
         print(A.itt)
         plt.pause(0.00001)
+        name = fn.name()
+        plt.savefig(name, bbox_inches='tight', aspect='normal')
     except KeyboardInterrupt:
       break
 
   plt.ioff()
   show(plt, A)
-  plt.show()
+  plt.show(aspect='equal')
 
 
 
