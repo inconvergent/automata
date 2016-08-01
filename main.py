@@ -12,8 +12,8 @@ BACK = [1,1,1,1]
 THREADS = 512
 ZONE_LEAP = 512
 
-INFLUENCE_RAD = 4
-CROWDED_LIMIT = 20
+INFLUENCE_RAD = 8
+CROWDED_LIMIT = 70
 
 LEAP = 100
 
@@ -48,23 +48,23 @@ def main():
 
   A = Automata(
       GRID_SIZE,
-      get_initial(num=50, shift=5),
+      get_initial(num=1000, shift=10),
       INFLUENCE_RAD,
       CROWDED_LIMIT,
       THREADS,
       )
 
-  im = plt.imshow(A.grid, cmap='gray', interpolation='none')
+  im = plt.imshow(1.0-A.grid.astype('float'), cmap='gray', interpolation='none')
   plt.axis('off')
   plt.axes().set_aspect('equal', 'datalim')
   plt.subplots_adjust(bottom=0.,left=0.,right=1.,top=1.)
 
   def init():
-    im.set_data(A.grid)
+    im.set_data(1.0-A.grid.astype('float'))
     return im,
 
   def animate(i):
-    im.set_data(A.grid)
+    im.set_data(1.0-A.grid.astype('float'))
     A.step()
     print(i, A.itt)
     if not i%LEAP:
