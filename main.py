@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
-GRID_SIZE = 1024 # power of two
+GRID_SIZE = 512 # power of two
 ONE = 1.0/GRID_SIZE
 ONEHALF = ONE*0.5
 
@@ -13,9 +13,9 @@ THREADS = 512
 ZONE_LEAP = 512
 
 INFLUENCE_RAD = 8
-CROWDED_LIMIT = 70
+CROWDED_LIMIT = 90
 
-LEAP = 100
+LEAP = 4
 
 MS = 2.0
 ALPHA = 0.9
@@ -42,9 +42,12 @@ def main():
   from matplotlib import animation
   import matplotlib.pyplot as plt
 
+  figsize = 800
+  dpi = 72
+
   fn = Fn(prefix='./res/', postfix='.png')
 
-  fig = plt.figure('automata')
+  fig = plt.figure('automata', figsize=(figsize/dpi, figsize/dpi), dpi=dpi)
 
   A = Automata(
       GRID_SIZE,
@@ -70,7 +73,7 @@ def main():
     if not i%LEAP:
       plt.pause(0.000000001)
       name = fn.name()
-      plt.savefig(name, pad_inches=0, aspect='equal')
+      plt.savefig(name, pad_inches=0, dpi=dpi/3.0)
     return im,
 
   anim = animation.FuncAnimation(
