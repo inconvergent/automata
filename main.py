@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from modules.helpers import plt_style
+from time import sleep
 
 GRID_SIZE = 1024 # power of two
 ONE = 1.0/GRID_SIZE
@@ -16,7 +17,7 @@ ZONE_LEAP = 512
 INFLUENCE_RAD = 3
 CROWDED_LIMIT = 15
 
-LEAP = 50
+LEAP = 100
 
 MS = 2.0
 ALPHA = 0.9
@@ -102,19 +103,15 @@ def show(plt, automata):
 
 
 
-
 def main():
   from modules.automata import Automata
-
   from fn import Fn
+  from matplotlib import animation
+  import matplotlib.pyplot as plt
 
   fn = Fn(prefix='./res/', postfix='.png')
 
-  import matplotlib.pyplot as plt
-  plt.ion()
-  plt.figure('automata', dpi=100, figsize=(10,10))
-  plt.axis('off')
-
+  fig = plt.figure('automata')
 
   A = Automata(
       GRID_SIZE,
@@ -124,22 +121,49 @@ def main():
       THREADS,
       )
 
-  show(plt, A)
+  im = plt.imshow(A.grid, cmap='gray')
+  plt.axis('off')
+  plt.axes().set_aspect('equal', 'datalim')
+
+  def init():
+    im.set_data(A.grid)
+    return im,
+
+  def animate(i):
+    im.set_data(A.grid)
+    A.step()
+    print(i, A.itt)
+    if not i%LEAP:
+      plt.pause(0.000000001)
+      name = fn.name()
+      plt.savefig(name, bbox_inches='tight', aspect='equal')
+    return im,
+
+  anim = animation.FuncAnimation(
+      fig,
+      animate,
+      init_func=init,
+      interval=0,
+      )
+
+
   plt.show()
 
-  while True:
-    try:
-      A.step()
-      show(plt, A)
-      plt.draw()
-      if not A.itt % LEAP:
-        print(A.itt)
-        plt.pause(0.00001)
-        name = fn.name()
-        # plt.savefig(name, bbox_inches='tight', aspect='equal')
-        plt.savefig(name)
-    except KeyboardInterrupt:
-      break
+
+  # while True:
+  #   try:
+  #     A.step()
+  #     # show(plt, A)
+  #     show_imshow(plt, A)
+  #     # plt.draw()
+  #     if not A.itt % LEAP:
+  #       print(A.itt)
+  #       plt.pause(0.00001)
+  #       name = fn.name()
+  #       # plt.savefig(name, bbox_inches='tight', aspect='equal')
+  #       plt.savefig(name)
+  #   except KeyboardInterrupt:
+  #     break
 
 
 
