@@ -3,12 +3,12 @@
 
 
 def plt_style(func):
-  def f(plt, _):
-    func(plt, _)
-    plt.tight_layout()
+  def f(plt, *_):
+    func(plt, *_)
+    plt.axis('off')
+    plt.axes().set_aspect('equal', 'datalim')
     plt.xlim([0,1])
     plt.ylim([0,1])
-    plt.axis('off')
     plt.subplots_adjust(bottom=0.,left=0.,right=1.,top=1.)
   return f
 

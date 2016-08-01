@@ -3,7 +3,7 @@
 
 from modules.helpers import plt_style
 
-GRID_SIZE = 512 # power of two
+GRID_SIZE = 1024 # power of two
 ONE = 1.0/GRID_SIZE
 ONEHALF = ONE*0.5
 
@@ -14,11 +14,12 @@ THREADS = 512
 ZONE_LEAP = 512
 
 INFLUENCE_RAD = 3
+CROWDED_LIMIT = 15
 
 LEAP = 50
 
 MS = 2.0
-ALPHA = 0.5
+ALPHA = 0.9
 
 
 def get_initial(num=10, shift=2):
@@ -29,9 +30,9 @@ def get_initial(num=10, shift=2):
   mid = int(GRID_SIZE/2)
 
   init[mid-shift:mid+shift,mid-shift:mid+shift] = True
-  # xx = randint(mid-shift,mid+shift, size=(num))
-  # yy = randint(mid-shift,mid+shift, size=(num))
-  # init[xx,yy] = False
+  xx = randint(mid-shift,mid+shift, size=(num))
+  yy = randint(mid-shift,mid+shift, size=(num))
+  init[xx,yy] = False
 
   # init[mid-shift:mid+shift,mid] = True
 
@@ -44,24 +45,24 @@ def show(plt, automata):
   x = i.astype('float')
   y = j.astype('float')
 
-  hi, hj = automata.hits.nonzero()
-  hit_mask = automata.hits[hi,hj]>0
+  # hi, hj = automata.hits.nonzero()
+  # hit_mask = automata.hits[hi,hj]>0
 
-  hx = hi[hit_mask].astype('float')
-  hy = hj[hit_mask].astype('float')
+  # hx = hi[hit_mask].astype('float')
+  # hy = hj[hit_mask].astype('float')
 
   ci, cj = (automata.connected>1).nonzero()
-
-  hx = hi[hit_mask].astype('float')
-  hy = hj[hit_mask].astype('float')
-
-  cx = ci.astype('float')
-  cy = cj.astype('float')
+  #
+  # hx = hi[hit_mask].astype('float')
+  # hy = hj[hit_mask].astype('float')
+  #
+  # cx = ci.astype('float')
+  # cy = cj.astype('float')
 
   # print('sum', hit_count.sum(), len(hit_count))
 
-  massx = automata.massx[i, j]
-  massy = automata.massy[i, j]
+  # massx = automata.massx[i, j]
+  # massy = automata.massy[i, j]
 
   # from numpy import column_stack
   # print(column_stack((massx,massy)))
@@ -71,10 +72,10 @@ def show(plt, automata):
 
   x *= ONE
   y *= ONE
-  hx *= ONE
-  hy *= ONE
-  cx *= ONE
-  cy *= ONE
+  # hx *= ONE
+  # hy *= ONE
+  # cx *= ONE
+  # cy *= ONE
 
   # plt.quiver(
   #     x, y,
@@ -95,11 +96,10 @@ def show(plt, automata):
   #     )
   plt.plot(
       x, y,
-      'ko',
+      'k.',
       markersize=MS, alpha=ALPHA
       )
 
-  plt.draw()
 
 
 
@@ -108,35 +108,38 @@ def main():
 
   from fn import Fn
 
-  fn = Fn(prefix='./res', postfix='.png')
+  fn = Fn(prefix='./res/', postfix='.png')
 
   import matplotlib.pyplot as plt
   plt.ion()
-  plt.figure(figsize=(8,8))
+  plt.figure('automata', dpi=100, figsize=(10,10))
   plt.axis('off')
+
 
   A = Automata(
       GRID_SIZE,
-      get_initial(num=100, shift=4),
+      get_initial(num=50, shift=5),
       INFLUENCE_RAD,
+      CROWDED_LIMIT,
       THREADS,
       )
+
+  show(plt, A)
+  plt.show()
 
   while True:
     try:
       A.step()
       show(plt, A)
+      plt.draw()
       if not A.itt % LEAP:
         print(A.itt)
         plt.pause(0.00001)
         name = fn.name()
-        plt.savefig(name, bbox_inches='tight', aspect='normal')
+        # plt.savefig(name, bbox_inches='tight', aspect='equal')
+        plt.savefig(name)
     except KeyboardInterrupt:
       break
-
-  plt.ioff()
-  show(plt, A)
-  plt.show(aspect='equal')
 
 
 

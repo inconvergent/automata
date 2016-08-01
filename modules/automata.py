@@ -19,6 +19,7 @@ class Automata(object):
       grid_size,
       initial,
       influence_rad,
+      crowded_limit,
       threads = 256
       ):
 
@@ -27,7 +28,7 @@ class Automata(object):
     self.threads = threads
 
     self.grid_size = grid_size # power of two
-    # self.one = 1.0/size
+    self.crowded_limit = crowded_limit
     self.influence_rad = influence_rad
 
     self.__init(initial)
@@ -48,7 +49,7 @@ class Automata(object):
     # ii,jj = logical_and(self.connected>7, self.grid).nonzero()
     # self.grid[ii, jj] = False
 
-    ii,jj = logical_and(self.neigh>15, self.grid).nonzero()
+    ii,jj = logical_and(self.neigh>self.crowded_limit, self.grid).nonzero()
     self.grid[ii, jj] = False
 
     # diminish_mask = random(size=len(ii))<prob
@@ -109,14 +110,14 @@ class Automata(object):
 
     self._diminish(0.2)
 
-    # hi, hj = logical_and(
-    #     self.neigh>15,
-    #     logical_and(self.hits, self.connected>1)
-    #     ).nonzero()
-
     hi, hj = logical_and(
-        self.neigh<=15, self.connected>1
+        self.neigh<=self.crowded_limit,
+        logical_and(self.hits, self.connected>1)
         ).nonzero()
+
+    # hi, hj = logical_and(
+    #     self.neigh<=15, self.connected>1
+    #     ).nonzero()
 
     hit_mask = self.hits[hi,hj]>0
     hi = hi[hit_mask]
